@@ -6,21 +6,22 @@ from sqlalchemy.orm import Session
 from decimal import Decimal
 from typing import List
 import requests
-import json
+import pandas as pd
 
 router = APIRouter(prefix="/fetchdata", tags=["Data"])
 
-@router.get("/", response_model=schemas.FetchData)
+
+@router.get("/", response_model=dict)
 def fetchData(db: Session = Depends(get_db)):
     playerdataURL = f"https://baker-api.sportsdata.io/baker/v2/nfl/projections/players/full-season/2025REG/avg?key={settings.API_KEY}"
     playerDataResponse = requests.get(playerdataURL)
     playerData = playerDataResponse.json()
     filtered_data = [
         {
-            "player_id": player["player_id"],
-            "name": player["name"],
-            "team": player["team"],
-            "position": player["position"],
+            "player_id": player["PlayerID"],
+            "name": player["Name"],
+            "team": player["Team"],
+            "position": player["Position"],
             "passing_yards": player["passing_yards"],
             "passing_touchdowns": player["passing_touchdowns"],
             "rushing_yards": player["rushing_yards"],
@@ -38,4 +39,4 @@ def fetchData(db: Session = Depends(get_db)):
         db.add(db_item)
     
     db.commit()
-    return None
+    return {"status":"Success", "Inserted": len(filtered_data)}
