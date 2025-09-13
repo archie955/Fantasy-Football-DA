@@ -1,14 +1,12 @@
-from fastapi import status, Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter
 from ..database import get_db
-from ..config import settings
 from .. import models, schemas
 from sqlalchemy.orm import Session
-from decimal import Decimal
 from typing import List
-import requests
 import pandas as pd
 
 router = APIRouter(prefix="/fetchdata", tags=["Data"])
+
 
 @router.get("/csv", response_model=dict)
 def csv_to_sql(db: Session = Depends(get_db)):
@@ -50,38 +48,23 @@ def csv_to_sql(db: Session = Depends(get_db)):
     db.commit()
 
     return {"status": "Success", "Inserted": inserted_count}
-    
 
 
+@router.get("/", response_model=List[schemas.LeagueOut])
+def get_leagues(db: Session = Depends(get_db)):
+    leagues = db.query(models.League).all()
+    return leagues
 
 
+@router.get("/{league_id}", response_model=List[schemas.TeamOut])
+def get_teams(league_id: int, db: Session = Depends(get_db)):
+    teams = db.query(models.Teams).filter(models.Teams.league_id == league_id).all()
+    return teams
 
-@router.get("/", response_model=dict)
-def fetchData(db: Session = Depends(get_db)):
-    playerdataURL = f"https://baker-api.sportsdata.io/baker/v2/nfl/projections/players/full-season/2025REG/avg?key={settings.API_KEY}"
-    playerDataResponse = requests.get(playerdataURL)
-    playerData = playerDataResponse.json()
-    filtered_data = [
-        {
-            "player_id": player["PlayerID"],
-            "name": player["Name"],
-            "team": player["Team"],
-            "position": player["Position"],
-            "passing_yards": player["passing_yards"],
-            "passing_touchdowns": player["passing_touchdowns"],
-            "rushing_yards": player["rushing_yards"],
-            "rushing_touchdowns": player["rushing_touchdowns"],
-            "fumbles_lost": player["fumbles_lost"],
-            "catches": player["catches"],
-            "receiving_yards": player["receiving_yards"],
-            "receiving_touchdowns": player["receiving_touchdowns"],
-            "fantasy_points_ppr": player["fantasy_points_ppr"]
-        }
-        for player in playerData
-    ]
-    for item in filtered_data:
-        db_item = models.Players(**item)
-        db.add(db_item)
-    
-    db.commit()
-    return {"status":"Success", "Inserted": len(filtered_data)}
+
+@router.get("/{league_id}/{team_id}", response_model=List[schemas.PlayerOut])
+def get_players(league_id: int, team_id: int, db: Session = Depends(get_db)):
+    team = db.query(models.Teams).filter(models.Teams.id == team_id, models.Teams.league_id == league_id).first()
+    if not team:
+        return []
+    return team.players
