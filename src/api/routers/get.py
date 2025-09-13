@@ -10,6 +10,51 @@ import pandas as pd
 
 router = APIRouter(prefix="/fetchdata", tags=["Data"])
 
+@router.get("/csv", response_model=dict)
+def csv_to_sql(db: Session = Depends(get_db)):
+
+    files = {
+        "QB": "data/FantasyPros_2025_Ros_QB_Rankings.csv",
+        "RB": "data/FantasyPros_2025_Ros_RB_Rankings.csv",
+        "WR": "data/FantasyPros_2025_Ros_WR_Rankings.csv",
+        "DST": "data/FantasyPros_2025_Ros_DST_Rankings.csv",
+        "K": "data/FantasyPros_2025_Ros_K_Rankings.csv",
+        "TE": "data/FantasyPros_2025_Ros_TE_Rankings.csv",
+    }
+
+    inserted_count = 0
+
+    for pos, filepath in files.items():
+        df = pd.read_csv(filepath)
+
+        df.columns = df.columns.str.strip().str.upper()
+
+        data = df.to_dict(orient="records")
+
+        filtered_data = [
+            {
+                "name": row.get("PLAYER NAME"),
+                "team": row.get("TEAM"),
+                "position": pos,
+                "fantasy_points_ppr": row.get("PROJ. FPTS"),
+            }
+            for row in data
+        ]
+
+        for item in filtered_data:
+            db_item = models.PlayerProjections(**item)
+            db.add(db_item)
+
+        inserted_count += len(filtered_data)
+
+    db.commit()
+
+    return {"status": "Success", "Inserted": inserted_count}
+    
+
+
+
+
 
 @router.get("/", response_model=dict)
 def fetchData(db: Session = Depends(get_db)):
