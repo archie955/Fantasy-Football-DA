@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, status, HTTPException
 from ..database import get_db
 from .. import models, schemas
 from sqlalchemy.orm import Session
@@ -53,12 +53,20 @@ def csv_to_sql(db: Session = Depends(get_db)):
 @router.get("/", response_model=List[schemas.LeagueOut])
 def get_leagues(db: Session = Depends(get_db)):
     leagues = db.query(models.League).all()
+
+    if not leagues:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'No Leagues Found')
+
     return leagues
 
 
 @router.get("/{league_id}", response_model=List[schemas.TeamOut])
 def get_teams(league_id: int, db: Session = Depends(get_db)):
     teams = db.query(models.Teams).filter(models.Teams.league_id == league_id).all()
+
+    if not teams:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Either no Teams belong to this league or the league doesn't exist")
+
     return teams
 
 
@@ -66,5 +74,5 @@ def get_teams(league_id: int, db: Session = Depends(get_db)):
 def get_players(league_id: int, team_id: int, db: Session = Depends(get_db)):
     team = db.query(models.Teams).filter(models.Teams.id == team_id, models.Teams.league_id == league_id).first()
     if not team:
-        return []
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"This team does not exist")
     return team.players

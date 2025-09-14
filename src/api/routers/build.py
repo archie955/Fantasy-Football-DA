@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src.api import models, schemas
 from src.api.database import get_db
-from typing import List
+
 
 router = APIRouter(prefix='/leagues', tags=['leagues'])
 
@@ -26,11 +26,20 @@ def create_team(league_id: int, team: schemas.TeamCreate, db: Session = Depends(
 
     return db_team
 
-@router.post("/{league_id}/{team_id}")
-def add_players(league_id: int, team_id: int, body: schemas.PlayerIds, db: Session = Depends(get_db)):
+def name_to_id(name: str, db: Session = Depends(get_db)):
+    x = name.replace("'", "").replace(";","")
+    player_id = db.query(models.PlayerProjections).filter(models.PlayerProjections.name.like(f'%{x}%'))
+    if not player_id:
+        return
+    return int(player_id)
+
+
+@router.post("/{league_id}/{team_id}/ids")
+def add_players_ids(league_id: int, team_id: int, body: schemas.PlayerIds, db: Session = Depends(get_db)):
     team = db.query(models.Teams).filter(models.Teams.id == team_id, models.Teams.league_id == league_id).first()
 
     players = db.query(models.PlayerProjections).filter(models.PlayerProjections.id.in_(body.player_ids)).all()
+
     team.players.extend(players)
 
     db.commit()
@@ -38,3 +47,14 @@ def add_players(league_id: int, team_id: int, body: schemas.PlayerIds, db: Sessi
     return {"status": "success", "team_id": team_id, "players_added": len(players)}
 
 
+@router.post("/{league_id}/{team_id}/names")
+def add_players_names(league_id: int, team_id: int, body: schemas.PlayerNames, db: Session = Depends(get_db)):
+    team = db.query(models.Teams).filter(models.Teams.id == team_id, models.Teams.league_id == league_id).first()
+
+    players = db.query(models.PlayerProjections).filter(models.PlayerProjections.name.in_(body.player_names)).all()
+
+    team.players.extend(players)
+
+    db.commit()
+
+    return {"status": "success", "team_id": team_id, "players_added": len(players)}

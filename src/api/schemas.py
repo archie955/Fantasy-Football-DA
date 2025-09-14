@@ -33,3 +33,6 @@ class PlayerOut(Projection):
 
 class PlayerIds(BaseModel):
     player_ids: List[int]
+
+class PlayerNames(BaseModel):
+    player_names: List[str]
