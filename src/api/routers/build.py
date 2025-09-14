@@ -51,7 +51,9 @@ def add_players_ids(league_id: int, team_id: int, body: schemas.PlayerIds, db: S
 def add_players_names(league_id: int, team_id: int, body: schemas.PlayerNames, db: Session = Depends(get_db)):
     team = db.query(models.Teams).filter(models.Teams.id == team_id, models.Teams.league_id == league_id).first()
 
-    players = db.query(models.PlayerProjections).filter(models.PlayerProjections.name.in_(body.player_names)).all()
+    ids = [name_to_id(name, db) for name in body.player_names]
+
+    players = db.query(models.PlayerProjections).filter(models.PlayerProjections.name.in_(ids)).all()
 
     team.players.extend(players)
 

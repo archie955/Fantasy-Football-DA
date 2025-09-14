@@ -8,7 +8,6 @@ The key structure will be:
 5. Make recommendations of free agents that could be picked up and who they should be in place of
 
 TO DO LIST:
-- Add improved name to ids function to make adding players easier by using LIKE statement, so that as long as some of the name is added it works quickly
 - Add function to optimise lineup
 - Add function to mock trade with either 1 for 1 or 2 for 2 trades
 - Add function that, for any given 2 teams, will rank their positions and determine if one team has leverage over the other for a trade. If and only if two or more positions is this true for will it return a positive result along with the positions and players names
