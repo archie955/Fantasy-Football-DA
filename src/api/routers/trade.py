@@ -19,7 +19,7 @@ router = APIRouter(prefix='/trades', tags=['trades'])
    
 
 def sort_tuples(list_of_tuples):
-    return sorted(list_of_tuples, key=lambda x: x[1])
+    return sorted(list_of_tuples, key=lambda x: x[1], reverse=True)
 
 def sum_points(list_of_tuples):
     total = 0
@@ -172,30 +172,22 @@ def identify_positional_leverage(lineupA, lineupB):
     return list(product(A_lev, B_lev))
 
 
-
-# Add function that completes the trade using deepcopies then reoptimises the lineup, then returns the trade details if it works, otherwise doesn't. Can do this by 
-# returning a boolean with it that I only append if true or something like this.
-# Trade identifier can then function by checking every single trade within the group and return a list of the trades
-# After this I can make the master function and actual router than will apply trade_identifier to all teams with your specified team. This will then return a dict of lists 
-# or something I haven't settled on the return types, but will return the information.
-
 def trade(lineup1, backups1, lineup2, backups2, positions):
     new_a = deepcopy(lineup1)
     new_b = deepcopy(lineup2)
-    proj_a = 0
-    proj_b = 0
-    new_proj_a = 0
-    new_proj_b = 0
 
     for pos in positions:
-        proj_a += new_a[pos][1]
-        proj_b += new_b[pos][1]
+        proj_a = new_a["POINTS"]
+        proj_b = new_b["POINTS"]
         new_a[pos], new_b[pos] = new_b[pos], new_a[pos]
-        new_proj_a += max(new_a[pos][1], backups1[pos.replace("1","").replace("2","")])
-        new_proj_b += max(new_b[pos][1], backups2[pos.replace("1","").replace("2","")])
+        opt_a, repa = optimise_lineup(new_a, lineup_rules)
+        opt_b, repb = optimise_lineup(new_b, lineup_rules)
+        new_proj_a = opt_a["POINTS"]
+        new_proj_b = opt_b["POINTS"]
     
     return new_proj_a - proj_a, new_proj_b - proj_b
     
+# This function needs to be altered so i optimise each time. Currently optimise doesn't work for the new_a, but rather the lineups. So, i need to alter the lineup not the new_a.
 
 
 
@@ -239,13 +231,16 @@ def identify_trades(league_id: int, team_id: int, db: Session = Depends(get_db))
     other_teams = db.query(models.Teams).filter(models.Teams.league_id == league_id, models.Teams.id != team_id).all()
 
     your_team_dict = generate_team_dict(your_team)
+
+    optimum_team, replace_team = optimise_lineup(your_team_dict, lineup_rules)
+
     trades = {}
     teams = {}
     for team in other_teams:
         player_dict = generate_team_dict(team)
         trades[team.name] = trades_evaluator(your_team_dict, player_dict)
 
-    return trades
+    return {"optimal lineup": optimum_team, "trades": trades}
 
 
 
