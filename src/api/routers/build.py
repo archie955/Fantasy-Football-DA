@@ -28,10 +28,10 @@ def create_team(league_id: int, team: schemas.TeamCreate, db: Session = Depends(
 
 def name_to_id(name: str, db: Session = Depends(get_db)):
     x = name.replace("'", "").replace(";","")
-    player_id = db.query(models.PlayerProjections).filter(models.PlayerProjections.name.like(f'%{x}%'))
-    if not player_id:
+    player = db.query(models.PlayerProjections).filter(models.PlayerProjections.name.like(f'%{x}%')).first()
+    if not player:
         return
-    return int(player_id)
+    return int(player.id)
 
 
 @router.post("/{league_id}/{team_id}/ids")
@@ -53,7 +53,7 @@ def add_players_names(league_id: int, team_id: int, body: schemas.PlayerNames, d
 
     ids = [name_to_id(name, db) for name in body.player_names]
 
-    players = db.query(models.PlayerProjections).filter(models.PlayerProjections.name.in_(ids)).all()
+    players = db.query(models.PlayerProjections).filter(models.PlayerProjections.id.in_(ids)).all()
 
     team.players.extend(players)
 
