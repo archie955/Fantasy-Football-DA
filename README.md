@@ -1,19 +1,36 @@
-# NFL Fantasy Trade Analysis Tool
+# NFL Fantasy Trade Analysis API
+This is a backend API that identifies mutually beneficial fantasy NFL trades between teams in a league, using player performance projections and roster structures. It consists of a full API, SQL (PostgreSQL) database integration, as well as statistical reasoning for the trade identification.
 
-## Programme structure
-This is all programmed using Python, with a SQL (Postgres) Database. The REST API is built with FastAPI, and the database is handled using Alembic migrations and SQLAlchemy with Pydantic as an ORM. The function is, once the league has been created, teams added, and players added per team in the database you can model run the trading function to identify statistically well-founded trades (elaborated on below).
+## Tech Stack:
+- Language: Python
+- Framework: FastAPI (REST API)
+- Database: PostgreSQL (integrated via SQLAlchemy for the ORM & Alembic for migrations)
+- Data Models and Schemas: Pydantic
+- Net Architecture: Backend-only (Not frontend or deployment, HTTP request only)
 
+## How it works:
+Once a league, teams, and player rosters are created in the database, the API can run a trade analysis function that identifies trades offering statistical benefit to both teams involved.
 
+I define a “Well-Founded” trade as one in which both participants increase their projected weekly starter points as a result of said trade.<br>
+For instance, suppose the following setup:
+- Team A: QBs (20, 18), TEs (8, 6) → total starter value: 28
+- Team B: QBs (18, 15), TEs (12, 11) → total starter value: 30<br> 
+#### If A and B swap their QB1 and TE1:
+- Team A → (QBs 18,18; TEs 12,6) → 30 points
+- Team B → (QBs 20,15; TEs 11,8) → 31 points<br> 
+#### Both teams gain overall efficiency in what is an often overlooked trade due to conventional biases (e.g. positional value).
 
-## Well-Foundedness in a trade
-A trade is considered statistically well-founded if it is of statistical benefit to both participants. In the case where this is not true, one of the teams reasoning for taking such as trade must be purely contextual and therefore not worth identifying using a tool, but rather whatever that context is. To give an example, consider the following situation. Suppose both team A and team B have 2 quarterbacks and 2 tight ends (QB and TE from here on out), and the rules are such that only 1 QB and 1 TE can start (no superflex). Team A's QBs have the projected weekly points of 20 and 18 (the better being labelled QB1, the bench player being QB2), and team A's TEs have a projection of 8 and 6 points, giving a projected combined starter value of 28 points per week. Team B, on the other hand, has their QBs with 18 and 15 points, TEs with 12 and 11 points, for a combined 30 starter points per week. In this scenario, if both teams traded their QB1 and TE1 to one another, team A ends up with QBs 18 and 18, TEs 12 and 6 for a total of 30 points per week. Team B now has QBs 20 and 15 with TEs 11 and 8, giving a total of 31 points per week. Both teams have had an increase in their expected points per week, but this is a trade that would often not be considered for the following reasons:
-1. Quarterbacks are more valuable than tight ends, offering far more raw points. The thing is, raw points do not matter but rather points over replacement.
-2. This is a trade involving a lot of starters, often avoided.
+This tool focuses on identifying position groups where mutually beneficial exchanges may exist, leaving finer negotiation details to user judgment due to the lack of context surrounding the league (e.g. who is in it, what teams they follow, inside jokes and so on...)
 
-Team B here could try to shift the trade further in their favour by offering TE 2, increasing them to 32 points and decreasing team A to 29 points, still beneficial for both but better for team B, but likewise team A could demand TE 1. This will come down to the context of who is in the trade, who needs it more etc. This tool should not be taken as identifying every possible trade, but rather highlighting position groups where a mutually beneficial trade exists between two teams, the fine details can be tweaked freely.
+## Algorithmic Approach:
+The analysis uses a heuristic search over possible trade combinations:
+- Considers only 2-for-2 trades between positions where each team has leverage. This is because any possible 1-for-1 or 1-for-2 trade will still be found by just appending two low scoring non-starters, which can easily be filtered out by the people in the trade, whilst trades involving more than this many players are increasingly rare and almost always context dependent, so for the sake of computational complexity are left out, hence:
+- Skips exhaustive trade enumeration (which grows factorially with trade size).
 
-## Limitations
-The main limitation here is that this tool is heuristic, it does not consider every single trade possibility as this information space grows factorially with trade size. Instead, it considers 2 for 2 trades between positions where each team has leverage (so all pairs that can be formed from the cartesian product of team A's leverage over B with team B's leverage over A). Once again, this is not a tool to identify every single possible trade, but rather a particular class of easily missed trade.
+## Limitations:
+- Currently it is heuristic. A more exhuastive approach could be taken to check every single possible trade but this would be very slow.
+- Ignores contextual factors such as injury risk (certain players being known for rarely finishing a season), as well as bye-weeks (this program considers rest of season projections so is not inaccurate, but it would promote a trade on the week a player isn't playing where, whilst the trade is still good, it should obviously be delayed a week)
+- Currently supports only one scoring ruleset (point-per-reception) as well as one positional ruleset (standard flex with 2 wide receivers, 2 running backs and 1 flex of wide receiver or running back, as oppose to superflex etc)
 
 ## Data
-The data has been gathered from https://www.fantasypros.com/nfl/rankings/qb.php
+The data has been gathered from <a href="https://www.fantasypros.com/nfl/rankings/qb.php">Fantasy Pros</a>
