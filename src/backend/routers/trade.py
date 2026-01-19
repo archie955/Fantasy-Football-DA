@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
-from src.api import models, schemas
-from src.api.database import get_db
+from src.models import schemas
+from src.database.database import get_db
 from itertools import product
 from copy import deepcopy
+
+from src.models import models
 
 lineup_rules = {"QB": 1, "WR": 2, "RB": 2, "FLEX": 1, "TE": 1, "K": 1, "DST": 1}
 trade_positions = ["QB", "WR1", "WR2", "RB1", "RB2", "FLEX", "TE"]

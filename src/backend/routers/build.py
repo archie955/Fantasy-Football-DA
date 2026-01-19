@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from src.api import models, schemas
-from src.api.database import get_db
+from src.models import schemas
+from src.database.database import get_db
+from src.models import models
 
 
 router = APIRouter(prefix='/leagues', tags=['leagues'])

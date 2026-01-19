@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DECIMAL, Table
 from sqlalchemy.orm import relationship
-from .database import Base
+from ..database.database import Base
 
 team_players = Table(
     "team_players",

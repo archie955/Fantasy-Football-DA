@@ -1,6 +1,8 @@
 from fastapi import Depends, APIRouter, status, HTTPException
-from ..database import get_db
-from .. import models, schemas
+
+from ...models import models
+from ...database.database import get_db
+from ...models import schemas
 from sqlalchemy.orm import Session
 from typing import List
 import pandas as pd
