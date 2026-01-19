@@ -1,6 +1,26 @@
-from pydantic import BaseModel
-from typing import List
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from typing import List, Optional
 
+
+# User models
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    created_at: datetime
+    class Config:
+        from_attributes = True
+
+class UserLogin(UserCreate):
+    pass
+
+
+# NFL player, team, and league models
 
 class Projection(BaseModel):
     name: str
@@ -36,3 +56,14 @@ class PlayerIds(BaseModel):
 
 class PlayerNames(BaseModel):
     player_names: List[str]
+
+
+
+# Token models for authentication
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    id: Optional[str]
