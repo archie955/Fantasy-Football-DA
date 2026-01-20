@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
-from src.models import schemas
+from src.models import models, schemas
 from src.database.database import get_db
 from itertools import product
 from copy import deepcopy
-
-from src.models import models
+from src.authentication.auth import get_current_user
 
 lineup_rules = {"QB": 1, "WR": 2, "RB": 2, "FLEX": 1, "TE": 1, "K": 1, "DST": 1}
 trade_positions = ["QB", "WR1", "WR2", "RB1", "RB2", "FLEX", "TE"]
@@ -168,13 +167,17 @@ def generate_team_dict(team):
 
 
 @router.get("/{league_id}/{team_id}", response_model=dict)
-def identify_trades(league_id: int, team_id: int, db: Session = Depends(get_db)):
-    your_team = db.query(models.Teams).filter(models.Teams.league_id == league_id, models.Teams.id == team_id).first()
+def identify_trades(league_id: int,
+                    team_id: int,
+                    db: Session = Depends(get_db),
+                    current_user: int = Depends(get_current_user)
+                    ):
+    your_team = db.query(models.Team).filter(models.Team.league_id == league_id, models.Team.id == team_id, models.Team.user_id == current_user).first()
 
     if not your_team:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No team with id {team_id} found")
     
-    other_teams = db.query(models.Teams).filter(models.Teams.league_id == league_id, models.Teams.id != team_id).all()
+    other_teams = db.query(models.Team).filter(models.Team.league_id == league_id, models.Team.id != team_id, models.Team.user_id == current_user).all()
 
     your_team_dict = generate_team_dict(your_team)
 
