@@ -6,12 +6,20 @@ from ...models import schemas
 from sqlalchemy.orm import Session
 from typing import List
 from .get import get_teams
+from src.authentication.auth import get_current_user
 
 router = APIRouter(prefix="/update", tags=["Data"])
 
 @router.put("/{league_id}/{team_id}")
-def update_team(league_id: int, team_id: int, players_out: schemas.PlayerNames, players_in: schemas.PlayerNames, db: Session = Depends(get_db)):
-    team = db.query(models.Teams).filter(models.Teams.id == team_id, models.Teams.league_id == league_id).first()
+def update_team(league_id: int,
+                team_id: int,
+                players_out: schemas.PlayerNames,
+                players_in: schemas.PlayerNames,
+                db: Session = Depends(get_db),
+                current_user: int = Depends(get_current_user)
+                ):
+    team = db.query(models.Team).filter(models.Team.id == team_id, models.Team.league_id == league_id, models.Team.user_id == current_user).first()
+    
     if not team:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"This team does not exist")
     
@@ -52,15 +60,21 @@ def update_team(league_id: int, team_id: int, players_out: schemas.PlayerNames, 
 
 
 @router.put("/{league_id}")
-def team_trades(league_id: int, team1_id: int, team2_id: int,
-                team1_players: List[schemas.PlayerNames], team2_players: List[schemas.PlayerNames],
-                db: Session = Depends(get_db)):
+def team_trades(league_id: int,
+                team1_id: int,
+                team2_id: int,
+                team1_players: List[schemas.PlayerNames],
+                team2_players: List[schemas.PlayerNames],
+                db: Session = Depends(get_db),
+                current_user: int = Depends(get_current_user)
+                ):
+    team1 = db.query(models.Team).filter(models.Team.id == team1_id, models.Team.league_id == league_id, models.Team.user_id == current_user).first()
 
-    team1 = db.query(models.Teams).filter(models.Teams.id == team1_id, models.Teams.league_id == league_id).first()
     if not team1:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"One of the provided teams does not exist")
     
-    team2 = db.query(models.Teams).filter(models.Teams.id == team2_id, models.Teams.league_id == league_id).first()
+    team2 = db.query(models.Team).filter(models.Team.id == team2_id, models.Team.league_id == league_id, models.Team.user_id == current_user).first()
+
     if not team2:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"One of the provided teams does not exist")
 
