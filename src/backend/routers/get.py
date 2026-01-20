@@ -6,6 +6,7 @@ from ...models import schemas
 from sqlalchemy.orm import Session
 from typing import List
 import pandas as pd
+from src.authentication.auth import get_current_user
 
 router = APIRouter(prefix="/fetchdata", tags=["Data"])
 
@@ -53,8 +54,10 @@ def csv_to_sql(db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=List[schemas.LeagueOut])
-def get_leagues(db: Session = Depends(get_db)):
-    leagues = db.query(models.League).all()
+def get_leagues(db: Session = Depends(get_db),
+                current_user: int = Depends(get_current_user)
+                ):
+    leagues = db.query(models.League).filter(models.League.user_id == current_user).all()
 
     if not leagues:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'No Leagues Found')
@@ -63,8 +66,10 @@ def get_leagues(db: Session = Depends(get_db)):
 
 
 @router.get("/{league_id}", response_model=List[schemas.TeamOut])
-def get_teams(league_id: int, db: Session = Depends(get_db)):
-    teams = db.query(models.Teams).filter(models.Teams.league_id == league_id).all()
+def get_teams(league_id: int,
+              db: Session = Depends(get_db),
+              current_user: int = Depends(get_current_user)):
+    teams = db.query(models.Team).filter(models.Team.league_id == league_id, models.Team.user_id == current_user).all()
 
     if not teams:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Either no Teams belong to this league or the league doesn't exist")
@@ -73,8 +78,14 @@ def get_teams(league_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{league_id}/{team_id}", response_model=List[schemas.PlayerOut])
-def get_players(league_id: int, team_id: int, db: Session = Depends(get_db)):
-    team = db.query(models.Teams).filter(models.Teams.id == team_id, models.Teams.league_id == league_id).first()
+def get_players(league_id: int,
+                team_id: int,
+                db: Session = Depends(get_db),
+                current_user: int = Depends(get_current_user)
+                ):
+    team = db.query(models.Team).filter(models.Team.id == team_id, models.Team.league_id == league_id, models.Team.user_id == current_user).first()
+
     if not team:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"This team does not exist")
+    
     return team.players
