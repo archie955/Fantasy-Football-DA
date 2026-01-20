@@ -36,7 +36,7 @@ class League(Base):
 
     owner = relationship("Users", back_populates="leagues")
 
-    teams = relationship("Teams", back_populates="league", cascade="all, delete-orphan")
+    teams = relationship("Team", back_populates="league", cascade="all, delete-orphan")
 
 
 class Team(Base):
