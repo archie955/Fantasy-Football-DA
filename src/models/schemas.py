@@ -20,7 +20,7 @@ class UserLogin(UserCreate):
     pass
 
 
-# NFL player, team, and league models
+# NFL player model
 
 class Projection(BaseModel):
     name: str
@@ -29,7 +29,11 @@ class Projection(BaseModel):
     fantasy_points_ppr: float
 
 
+# League models
+
+
 class LeagueCreate(BaseModel):
+    user_id: int
     name: str
 
 class LeagueOut(LeagueCreate):
@@ -38,11 +42,12 @@ class LeagueOut(LeagueCreate):
         from_attributes = True
 
 class TeamCreate(BaseModel):
+    user_id: int
+    league_id: int
     name: str
 
 class TeamOut(TeamCreate):
     id: int
-    league_id: int
     class Config:
         from_attributes = True
 
