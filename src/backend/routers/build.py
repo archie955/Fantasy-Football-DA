@@ -27,7 +27,7 @@ def create_team(league_id: int,
                 db: Session = Depends(get_db),
                 current_user: int = Depends(get_current_user)
                 ):
-    db_team = models.Teams(user_id=current_user, name=team.name, league_id=league_id)
+    db_team = models.Team(user_id=current_user, name=team.name, league_id=league_id)
 
     db.add(db_team)
     db.commit()

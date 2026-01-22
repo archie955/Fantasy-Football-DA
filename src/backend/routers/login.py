@@ -23,3 +23,20 @@ def login(user_credentials: OAuth2PasswordRequestForm = Depends(),
     access_token = auth.create_access_token(data = {"user_id": user.id})
     
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    hashed_pwd = utils.hash(user.password)
+    user.password = hashed_pwd
+
+    already_exists = db.query(models.Users).filter(models.Users.email == user.email).first()
+
+    if already_exists:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This email is already registered")
+
+    new_user = models.Users(**user.model_dump())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
