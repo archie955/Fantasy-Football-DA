@@ -6,7 +6,7 @@ const LoginForm = (props) => {
   return (
     <form onSubmit={props.login ? props.loginFunction : props.createAccountFunction}>
       <div>
-        <Header login={props.login}/><ButtonForm onClickFunction={props.changeLogin} text={'change'}/>
+        <LoginHeader login={props.login}/><ButtonForm onClickFunction={props.changeLogin} text={'change'}/>
       </div>
       <div>
         email: <input
