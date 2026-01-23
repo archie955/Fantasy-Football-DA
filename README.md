@@ -1,3 +1,5 @@
+# Needs significant update!
+
 # NFL Fantasy Trade Analysis API
 This is a backend API that identifies mutually beneficial fantasy NFL trades between teams in a league, using player performance projections and roster structures. It consists of a full API, SQL (PostgreSQL) database integration, as well as statistical reasoning for the trade identification.
 

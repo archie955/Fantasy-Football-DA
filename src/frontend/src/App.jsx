@@ -1,32 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import loginServices from './services/login'
-
-const Header = ({ login }) => <h2>{login ? 'Login' : 'Create Account'}</h2>
-
-const LoginForm = (props) => {
-  return (
-    <form onSubmit={props.login ? props.loginFunction : props.createAccountFunction}>
-      <div>
-        <Header login={props.login}/><button type="button" onClick={props.changeLogin}>change</button>
-      </div>
-      <div>
-        email: <input
-          value={props.email}
-          placeholder='Enter your email'
-          onChange={e => props.setNewEmailFunction(e.target.value)}/>
-      </div>
-      <div>
-        password: <input
-          type={props.visible ? 'text':'password'}
-          placeholder='Enter your password'
-          value={props.password}
-          onChange={e => props.setNewPasswordFunction(e.target.value)}/> <button type="button" onClick={props.showPasswordFunction}>{props.visible ? 'Hide' : 'Show'}</button>
-      </div>
-      <button type="submit">Submit</button>
-    </form>
-  )
-}
+import LoginForm from './components/loginform'
 
 
 
