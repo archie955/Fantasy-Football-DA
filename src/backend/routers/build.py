@@ -11,9 +11,9 @@ router = APIRouter(prefix='/leagues', tags=['leagues'])
 @router.post("/", response_model=schemas.LeagueOut)
 def create_league(league: schemas.LeagueCreate,
                   db: Session = Depends(get_db),
-                  current_user: int = Depends(get_current_user)
+                  current_user: models.Users = Depends(get_current_user)
                   ):
-    db_league = models.League(user_id=current_user, name=league.name)
+    db_league = models.League(user_id=current_user.id, name=league.name)
 
     db.add(db_league)
     db.commit()
@@ -25,9 +25,9 @@ def create_league(league: schemas.LeagueCreate,
 def create_team(league_id: int,
                 team: schemas.TeamCreate,
                 db: Session = Depends(get_db),
-                current_user: int = Depends(get_current_user)
+                current_user: models.Users = Depends(get_current_user)
                 ):
-    db_team = models.Team(user_id=current_user, name=team.name, league_id=league_id)
+    db_team = models.Team(user_id=current_user.id, name=team.name, league_id=league_id)
 
     db.add(db_team)
     db.commit()
@@ -53,9 +53,11 @@ def add_players_ids(league_id: int,
                     team_id: int,
                     body: schemas.PlayerIds,
                     db: Session = Depends(get_db),
-                    current_user: int = Depends(get_current_user)
+                    current_user: models.Users = Depends(get_current_user)
                     ):
-    team = db.query(models.Team).filter(models.Team.id == team_id, models.Team.league_id == league_id, models.Team.user_id == current_user).first()
+    team = db.query(models.Team).filter(models.Team.id == team_id,
+                                        models.Team.league_id == league_id,
+                                        models.Team.user_id == current_user.id).first()
 
     players = db.query(models.PlayerProjections).filter(models.PlayerProjections.id.in_(body.player_ids)).all()
 
@@ -71,9 +73,11 @@ def add_players_names(league_id: int,
                       team_id: int,
                       body: schemas.PlayerNames,
                       db: Session = Depends(get_db),
-                      current_user: int = Depends(get_current_user)
+                      current_user: models.Users = Depends(get_current_user)
                       ):
-    team = db.query(models.Team).filter(models.Team.id == team_id, models.Team.league_id == league_id, models.Team.user_id == current_user).first()
+    team = db.query(models.Team).filter(models.Team.id == team_id,
+                                        models.Team.league_id == league_id,
+                                        models.Team.user_id == current_user.id).first()
 
     ids = [name_to_id(name, db) for name in body.player_names]
 

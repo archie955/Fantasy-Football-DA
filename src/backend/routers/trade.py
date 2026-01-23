@@ -170,14 +170,18 @@ def generate_team_dict(team):
 def identify_trades(league_id: int,
                     team_id: int,
                     db: Session = Depends(get_db),
-                    current_user: int = Depends(get_current_user)
+                    current_user: models.Users = Depends(get_current_user)
                     ):
-    your_team = db.query(models.Team).filter(models.Team.league_id == league_id, models.Team.id == team_id, models.Team.user_id == current_user).first()
+    your_team = db.query(models.Team).filter(models.Team.league_id == league_id,
+                                             models.Team.id == team_id,
+                                             models.Team.user_id == current_user.id).first()
 
     if not your_team:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No team with id {team_id} found")
     
-    other_teams = db.query(models.Team).filter(models.Team.league_id == league_id, models.Team.id != team_id, models.Team.user_id == current_user).all()
+    other_teams = db.query(models.Team).filter(models.Team.league_id == league_id,
+                                               models.Team.id != team_id,
+                                               models.Team.user_id == current_user.id).all()
 
     your_team_dict = generate_team_dict(your_team)
 
