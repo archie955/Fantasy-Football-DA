@@ -3,7 +3,7 @@ import './App.css'
 import loginServices from './services/login'
 import LoginForm from './components/loginform'
 
-
+/* KEY NOTE: later on use const token = localStorage.getItem("token") to send to backend as verification */
 
 
 function App() {
@@ -29,6 +29,7 @@ function App() {
         setEmail('')
         setPassword('')
         console.log('successfully logged in as', returnedPerson)
+        localStorage.setItem("token", returnedPerson.access_token)
       })
   }
 
