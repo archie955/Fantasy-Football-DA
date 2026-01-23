@@ -60,7 +60,7 @@ def get_leagues(db: Session = Depends(get_db),
     leagues = db.query(models.League).filter(models.League.user_id == current_user.id).all()
 
     if not leagues:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'No Leagues Found')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'No Leagues Found') # edit this so frontend handles empty arrays
 
     return leagues
 
