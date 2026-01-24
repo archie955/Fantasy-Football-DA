@@ -21,21 +21,13 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     connection = op.get_bind()
 
-    # -------------------------
-    # USERS TABLE FIX
-    # -------------------------
-
-    # Drop password unique constraint if exists
-    # Constraint name may differ — adjust if needed
+    # fix users table
     with op.batch_alter_table("users") as batch_op:
         batch_op.drop_constraint("users_password_key", type_="unique")
 
 
-    # -------------------------
-    # TEAMS TABLE
-    # -------------------------
-
-    # add user_id nullable first
+    # fix teams table
+    # drop nut null constraint
     op.add_column(
         "teams",
         sa.Column("user_id", sa.Integer(), nullable=True)
@@ -80,10 +72,7 @@ def upgrade() -> None:
     )
 
 
-    # -------------------------
-    # TEAM_PLAYERS TABLE
-    # -------------------------
-
+    # alter team players table
     # add user_id and league_id nullable first
     op.add_column(
         "team_players",
@@ -142,28 +131,12 @@ def upgrade() -> None:
         nullable=False
     )
 
-    # 5. Add indexes
+    # add indices
     op.create_index("ix_team_players_team_id", "team_players", ["team_id"])
     op.create_index("ix_team_players_player_id", "team_players", ["player_id"])
     op.create_index("ix_team_players_user_id", "team_players", ["user_id"])
     op.create_index("ix_team_players_league_id", "team_players", ["league_id"])
-
-
-    # -------------------------
-    # LEAGUES INDEX (if missing)
-    # -------------------------
-
-    op.create_index(
-        "ix_leagues_user_id",
-        "leagues",
-        ["user_id"]
-    )
-
-
-    # -------------------------
-    # PROJECTIONS INDEXES
-    # -------------------------
-
+    op.create_index("ix_leagues_user_id", "leagues", ["user_id"])
     op.create_index("ix_players_name", "projections", ["name"])
     op.create_index("ix_players_team", "projections", ["team"])
     op.create_index("ix_players_position", "projections", ["position"])
@@ -172,18 +145,10 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # -------------------------
-    # PROJECTIONS
-    # -------------------------
-
     op.drop_index("ix_players_position", table_name="projections")
     op.drop_index("ix_players_team", table_name="projections")
     op.drop_index("ix_players_name", table_name="projections")
 
-
-    # -------------------------
-    # TEAM_PLAYERS
-    # -------------------------
 
     op.drop_index("ix_team_players_league_id", table_name="team_players")
     op.drop_index("ix_team_players_user_id", table_name="team_players")
@@ -197,9 +162,6 @@ def downgrade() -> None:
     op.drop_column("team_players", "league_id")
 
 
-    # -------------------------
-    # TEAMS
-    # -------------------------
 
     op.drop_constraint("uq_league_team", "teams", type_="unique")
 
@@ -211,16 +173,10 @@ def downgrade() -> None:
     op.drop_column("teams", "user_id")
 
 
-    # -------------------------
-    # LEAGUES
-    # -------------------------
 
     op.drop_index("ix_leagues_user_id", table_name="leagues")
 
 
-    # -------------------------
-    # USERS
-    # -------------------------
 
     with op.batch_alter_table("users") as batch_op:
         batch_op.create_unique_constraint(
