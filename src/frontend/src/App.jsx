@@ -1,67 +1,28 @@
-import { useState } from 'react'
-import './App.css'
-import loginServices from './services/login'
-import LoginForm from './components/LoginForm'
-import Notification from './components/Notification'
+import { Routes, Route } from 'react-router-dom'
 
+import Login from './pages/Login'
+import Home from './pages/Home'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
-  const [visible, setVisible] = useState(false);
-  const [login, setLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [updateMessage, setUpdateMessage] = useState(null)
-
-  const showPassword = () => {
-    setVisible(!visible)
-  }
-
-  const loginOrCreate = () => {
-    setLogin(!login)
-  }
-
-  const loginFunction = (event) => {
-    event.preventDefault()
-    const person = {email: email, password: password}
-    loginServices
-      .loginAccount(person)
-      .then(returnedPerson => {
-        setEmail('')
-        setPassword('')
-        localStorage.setItem("token", returnedPerson.access_token)
-        setUpdateMessage('Successfully logged in')
-        setTimeout(() => {
-          setUpdateMessage(null)
-        }, 4000)
-      })
-  }
-
-  const createAccountFunction = (event) => {
-    event.preventDefault()
-    const person = {email: email, password: password}
-    loginServices
-      .createAccount(person)
-      .then(returnedPerson => {
-        setEmail('')
-        setPassword('')
-        setLogin(true)
-        setUpdateMessage('Successfully created account')
-        setTimeout(() => {
-          setUpdateMessage(null)
-        }, 4000)
-      })
-  }
 
   return (
-    <div>
-      <Notification message={updateMessage} />
-      <LoginForm login={login} loginFunction={loginFunction} 
-      createAccountFunction={createAccountFunction} changeLogin={loginOrCreate} 
-      visible={visible} showPasswordFunction={showPassword}
-      email={email} setNewEmailFunction={setEmail}
-      password={password} setNewPasswordFunction={setPassword}/>
-    </div>
+    <Routes>
+
+      <Route path='/' element={<Login />} />
+
+      <Route
+        path='/home'
+        element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
+
+    </Routes>
   )
 }
 
 export default App
+
