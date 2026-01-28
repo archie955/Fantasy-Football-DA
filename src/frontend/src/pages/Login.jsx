@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import './App.css'
-import loginServices from './services/login'
-import LoginForm from './components/LoginForm'
-import Notification from './components/Notification'
+import loginServices from '../services/login'
+import LoginForm from '../components/LoginForm'
+import Notification from '../components/Notification'
+import { useNavigate } from 'react-router-dom'
 
 
-function App() {
+function Login() {
   const [visible, setVisible] = useState(false);
   const [login, setLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [updateMessage, setUpdateMessage] = useState(null)
+
+  const navigate = useNavigate()
 
   const showPassword = () => {
     setVisible(!visible)
@@ -22,29 +24,35 @@ function App() {
 
   const loginFunction = (event) => {
     event.preventDefault()
+
     const person = {email: email, password: password}
+
     loginServices
       .loginAccount(person)
       .then(returnedPerson => {
+        localStorage.setItem("token", returnedPerson.access_token)
         setEmail('')
         setPassword('')
-        localStorage.setItem("token", returnedPerson.access_token)
         setUpdateMessage('Successfully logged in')
+
         setTimeout(() => {
-          setUpdateMessage(null)
-        }, 4000)
+          navigate('/home')
+        }, 1000)
       })
   }
 
   const createAccountFunction = (event) => {
     event.preventDefault()
+
     const person = {email: email, password: password}
+
     loginServices
       .createAccount(person)
-      .then(returnedPerson => {
+      .then(() => {
         setEmail('')
         setPassword('')
         setLogin(true)
+
         setUpdateMessage('Successfully created account')
         setTimeout(() => {
           setUpdateMessage(null)
@@ -55,13 +63,21 @@ function App() {
   return (
     <div>
       <Notification message={updateMessage} />
-      <LoginForm login={login} loginFunction={loginFunction} 
-      createAccountFunction={createAccountFunction} changeLogin={loginOrCreate} 
-      visible={visible} showPasswordFunction={showPassword}
-      email={email} setNewEmailFunction={setEmail}
-      password={password} setNewPasswordFunction={setPassword}/>
+
+      <LoginForm
+        login={login} 
+        loginFunction={loginFunction} 
+        createAccountFunction={createAccountFunction}
+        changeLogin={loginOrCreate} 
+        visible={visible}
+        showPasswordFunction={showPassword}
+        email={email}
+        setNewEmailFunction={setEmail}
+        password={password}
+        setNewPasswordFunction={setPassword}
+      />
     </div>
   )
 }
 
-export default App
+export default Login
