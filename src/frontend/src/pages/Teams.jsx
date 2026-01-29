@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-function Leagues() {
+function Teams() {
 
     const navigate = useNavigate()
 
@@ -8,7 +8,12 @@ function Leagues() {
         navigate('/home')
     }
 
+    return (
+        <div>
+            <p>This is a teams page for the league</p>
+        </div>
+    )
     
 }
 
-export default Leagues
+export default Teams

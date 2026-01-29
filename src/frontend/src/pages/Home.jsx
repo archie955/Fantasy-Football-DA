@@ -3,6 +3,7 @@ import Button from '../components/Button'
 import { useState, useEffect } from 'react'
 import leagueService from '../services/leagues'
 import ViewLeague from '../components/ViewLeagues'
+import teamService from '../services/teams'
 
 
 function Home() {
@@ -14,6 +15,13 @@ function Home() {
   const logout = () => {
     localStorage.removeItem('token')
     navigate('/')
+  }
+  const navigateParentFunction = (league) => {
+    const navigateTeam = () => {
+      localStorage.setItem('league', league)
+      navigate('/teams')
+    }
+    return navigateTeam
   }
 
   useEffect(() => {
@@ -38,7 +46,7 @@ function Home() {
       <h1>Home Page</h1>
 
       <p>You are logged in.</p>
-      <ViewLeague leagues={leagues} />
+      <ViewLeague leagues={leagues} navigationFunction={navigateParentFunction} />
       <Button text='Logout' clickFunction={logout} />
     </div>
   )

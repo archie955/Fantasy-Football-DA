@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 import Home from './pages/Home'
 import ProtectedRoute from './components/ProtectedRoute'
+import Teams from './pages/Teams'
 
 function App() {
 
@@ -20,6 +21,14 @@ function App() {
         }
       />
 
+      <Route
+       path='/teams'
+       element={
+        <ProtectedRoute>
+          <Teams />
+        </ProtectedRoute>
+       }
+     />
     </Routes>
   )
 }
