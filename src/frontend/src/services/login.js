@@ -25,4 +25,4 @@ const loginAccount = async accountDetails => {
 }
 
 
-export default { createAccount, loginAccount, }
+export default { createAccount, loginAccount }

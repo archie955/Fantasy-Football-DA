@@ -26,3 +26,11 @@ function App() {
 
 export default App
 
+/*<Route
+        path='/leagues'
+        element={
+          <ProtectedRoute>
+            <Leagues />
+          </ProtectedRoute>
+        }
+      />*/
