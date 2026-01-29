@@ -39,7 +39,7 @@ function Home() {
 
       <p>You are logged in.</p>
       <ViewLeague leagues={leagues} />
-      <Button text='Logout' onClick={logout} />
+      <Button text='Logout' clickFunction={logout} />
     </div>
   )
 }
