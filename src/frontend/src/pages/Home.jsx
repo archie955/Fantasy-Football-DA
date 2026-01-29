@@ -13,12 +13,14 @@ function Home() {
   const navigate = useNavigate()
 
   const logout = () => {
-    localStorage.removeItem('token')
+    localStorage.clear()
     navigate('/')
   }
   const navigateParentFunction = (league) => {
+    const toStoreLeague = JSON.stringify(league)
     const navigateTeam = () => {
-      localStorage.setItem('league', league)
+      console.log(toStoreLeague)
+      localStorage.setItem('league', toStoreLeague)
       navigate('/teams')
     }
     return navigateTeam
