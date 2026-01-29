@@ -1,16 +1,7 @@
-import axios from 'axios'
-const baseUrl = 'http://127.0.0.1:8000/fetchdata/'
+import api from './api'
 
 const getLeagues = () => {
-    const token = localStorage.getItem("token")
-
-    const config = {
-        headers: {
-        Authorization: `Bearer ${token}`
-        }
-    }
-
-    const request = axios.get(baseUrl, config)
+    const request = api.get('/fetchdata/')
     return request.then(response => response.data)
 }
 
