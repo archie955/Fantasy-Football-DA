@@ -5,6 +5,7 @@ from src.database.database import get_db
 from itertools import product
 from copy import deepcopy
 from src.authentication.auth import get_current_user
+from typing import List
 
 lineup_rules = {"QB": 1, "WR": 2, "RB": 2, "FLEX": 1, "TE": 1, "K": 1, "DST": 1}
 trade_positions = ["QB", "WR1", "WR2", "RB1", "RB2", "FLEX", "TE"]
@@ -24,7 +25,6 @@ def sum_points(list_of_tuples):
     for tuple in list_of_tuples:
         total += tuple[1]
     return total
-
 
 def optimise_lineup(team: dict, lineup_rules: dict):
     lineup = {}
@@ -195,8 +195,22 @@ def identify_trades(league_id: int,
     return {"optimal lineup": optimum_team, "trades": trades}
 
 
+@router.get("/{league_id}/{team_id}/optimise", response_model=List[dict])
+def get_optimal_lineup(league_id: int,
+                       team_id: int,
+                       db: Session = Depends(get_db),
+                       current_user: models.Users = Depends(get_current_user)
+                       ):
+    your_team = db.query(models.Team).filter(models.Team.league_id == league_id,
+                                             models.Team.id == team_id,
+                                             models.Team.user_id == current_user.id).first()
 
-    
+    if not your_team:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No team with id {team_id} found")
+
+    optimal_lineup, backups = optimise_lineup(your_team, lineup_rules)
+
+    return [optimal_lineup, backups]
 
 
 

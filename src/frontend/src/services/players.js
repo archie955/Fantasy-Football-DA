@@ -5,4 +5,9 @@ const getPlayersFromTeam = team => {
     return request.then(response => response.data)
 }
 
-export default { getPlayersFromTeam }
+const getOptimalLineup = team => {
+    const request = api.get(`/trades/${team.league_id}/${team.id}/optimise`)
+    return request.then(response => response.data)
+}
+
+export default { getPlayersFromTeam, getOptimalLineup }

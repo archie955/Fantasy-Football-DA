@@ -9,7 +9,9 @@ origins = [
     "https://localhost",
     "https://localhost:8080",
     "http://localhost:5173",
-    "http://localhost:5173/"
+    "http://localhost:5173/",
+    "http://localhost:5173/home",
+    "https://localhost:5173/team"
 ]
 
 app.add_middleware(

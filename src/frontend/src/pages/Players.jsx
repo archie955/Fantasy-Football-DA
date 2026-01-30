@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import playerService from '../services/players'
-import ViewLeague from '../components/ViewLeagues'
+import ViewPlayers from '../components/ViewPlayers'
 import Button from '../components/Button'
 
 
@@ -34,7 +34,6 @@ function Players() {
         }
 
         const team = JSON.parse(storedTeam)
-        console.log('team: ', team)
 
         playerService.getPlayersFromTeam(team)
             .then(data => {
@@ -53,7 +52,7 @@ function Players() {
     return (
         <div>
             <h1>This is the players page</h1>
-            <ViewLeague leagues={players} navigationFunction={navigateParentFunction} />
+            <ViewPlayers players={players} navigationFunction={navigateParentFunction} />
             <Button text='return to teams' clickFunction={returnToLeague} />
         </div>
     )

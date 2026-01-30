@@ -10,6 +10,10 @@ function Home() {
   const [leagues, setLeagues] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const homeStyles = {
+    backgroundColor: "blue",
+  }
+
   const navigate = useNavigate()
 
   const logout = () => {
@@ -44,7 +48,7 @@ function Home() {
   }
 
   return (
-    <div>
+    <div style={homeStyles}>
       <h1>Home Page</h1>
 
       <p>You are logged in.</p>
