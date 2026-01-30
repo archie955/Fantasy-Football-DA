@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 import ProtectedRoute from './components/ProtectedRoute'
 import Teams from './pages/Teams'
+import Players from './pages/Players'
 
 function App() {
 
@@ -22,24 +23,26 @@ function App() {
       />
 
       <Route
-       path='/teams'
-       element={
-        <ProtectedRoute>
-          <Teams />
-        </ProtectedRoute>
-       }
-     />
+        path='/league'
+        element={
+          <ProtectedRoute>
+            <Teams />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path='team'
+        element={
+          <ProtectedRoute>
+            <Players />
+          </ProtectedRoute>
+        }
+      />
+
+      
     </Routes>
   )
 }
 
 export default App
-
-/*<Route
-        path='/leagues'
-        element={
-          <ProtectedRoute>
-            <Leagues />
-          </ProtectedRoute>
-        }
-      />*/

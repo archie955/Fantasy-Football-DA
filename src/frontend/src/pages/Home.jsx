@@ -21,7 +21,7 @@ function Home() {
     const navigateTeam = () => {
       console.log(toStoreLeague)
       localStorage.setItem('league', toStoreLeague)
-      navigate('/teams')
+      navigate('/league')
     }
     return navigateTeam
   }

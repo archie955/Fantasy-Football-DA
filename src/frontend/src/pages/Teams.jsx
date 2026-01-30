@@ -17,9 +17,13 @@ function Teams() {
     }
 
     const navigateParentFunction = (team) => {
+        const toStoreTeam = JSON.stringify(team)
         const navigatePlayers = () => {
-            console.log(team.name)
+            console.log(toStoreTeam)
+            localStorage.setItem('team', toStoreTeam)
+            navigate('/team')
         }
+        return navigatePlayers
     }
 
     useEffect(() => {
