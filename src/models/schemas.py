@@ -33,10 +33,10 @@ class Projection(BaseModel):
 
 
 class LeagueCreate(BaseModel):
-    user_id: int
     name: str
 
 class LeagueOut(LeagueCreate):
+    user_id: int
     id: int
     class Config:
         from_attributes = True

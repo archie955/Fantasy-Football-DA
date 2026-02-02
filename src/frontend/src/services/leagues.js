@@ -5,4 +5,9 @@ const getLeagues = () => {
     return request.then(response => response.data)
 }
 
-export default { getLeagues }
+const createNewLeague = async (newLeague) => {
+    const request = await api.post('/leagues/', newLeague)
+    return request.data
+}
+
+export default { getLeagues, createNewLeague }

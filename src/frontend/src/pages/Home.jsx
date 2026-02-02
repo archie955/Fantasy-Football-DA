@@ -3,12 +3,14 @@ import Button from '../components/Button'
 import { useState, useEffect } from 'react'
 import leagueService from '../services/leagues'
 import ViewLeague from '../components/ViewLeagues'
-import teamService from '../services/teams'
+import NewLeagueForm from '../components/NewLeagueForm'
 
 
 function Home() {
   const [leagues, setLeagues] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [newLeagueName, setNewLeagueName] = useState("")
 
   const homeStyles = {
     backgroundColor: "blue",
@@ -28,6 +30,15 @@ function Home() {
       navigate('/league')
     }
     return navigateTeam
+  }
+
+  const handleCreateLeague = async (league) => {
+    const createdWhole = await leagueService.createNewLeague(league)
+    const createdData = createdWhole.data
+    console.log(createdData)
+    setLeagues(prev => [...prev, createdData])
+    setShowForm(false)
+    setNewLeagueName("")
   }
 
   useEffect(() => {
@@ -54,6 +65,13 @@ function Home() {
       <p>You are logged in.</p>
       <ViewLeague leagues={leagues} navigationFunction={navigateParentFunction} />
       <Button text='Logout' clickFunction={logout} />
+      <Button text={showForm ? 'Cancel league' : 'Create new league'} clickFunction={() => setShowForm(!showForm)} />
+      {showForm && (
+        <NewLeagueForm 
+          submitFunction={handleCreateLeague}
+          leagueName={newLeagueName}
+          setNewLeagueName={setNewLeagueName}
+          />)}
     </div>
   )
 }
